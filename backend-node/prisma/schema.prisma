@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String?
+  coins        Int      @default(0)
+  createdAt    DateTime @default(now())
+  trialUntil   DateTime?
+  isAdmin      Boolean  @default(false)
+  sentMessages Message[] @relation("sent_messages")
+  receivedGifts GiftReceive[]
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String
+  isPrivate   Boolean  @default(false)
+  hostId      String
+  createdAt   DateTime @default(now())
+  participants RoomParticipant[]
+  messages    Message[]
+}
+
+model RoomParticipant {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  isSpeaker Boolean  @default(false)
+  joinedAt  DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Gift {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  price     Int
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  receives  GiftReceive[]
+}
+
+model GiftReceive {
+  id        String  @id @default(cuid())
+  giftId    String
+  fromUserId String
+  toUserId  String
+  createdAt DateTime @default(now())
+}
